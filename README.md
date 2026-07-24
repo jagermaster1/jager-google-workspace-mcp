@@ -88,7 +88,12 @@
 
 ## <span style="color:#adbcbc">Overview</span>
 
-Workspace MCP is the single most complete MCP server, the only that integrates all major Google Workspace services with AI assistants and all agent platforms. The entire toolset is available for CLI usage supporting both local and remote instances.
+Jager Google Workspace MCP is a homeschool-friendly fork of Workspace MCP. It keeps the full Google Workspace engine available for later expansion, but its out-of-the-box defaults are biased toward document workflows instead of the full kitchen sink.
+
+**Default Jager profile**
+- Services: Drive, Docs, Sheets, Slides, Forms
+- Tier: `core`
+- Goal: safer/easier first-run behavior for homeschool and document-heavy workflows while preserving the option to expand into broader Google Workspace use later
 
 ## <span style="color:#adbcbc">Features</span>
 
@@ -191,13 +196,18 @@ The license is 21 lines and says what it means.
 export GOOGLE_OAUTH_CLIENT_ID="..."
 export GOOGLE_OAUTH_CLIENT_SECRET="..."
 
-# 2. Launch — pick a tier
-uvx workspace-mcp --tool-tier core       # essential tools
-uvx workspace-mcp --tool-tier extended   # core + management ops
-uvx workspace-mcp --tool-tier complete   # everything
+# 2. Launch
+# Jager fork default if you pass no tool filters:
+#   services=drive,docs,sheets,slides,forms
+#   tier=core
+uvx workspace-mcp
 
-# Or cherry-pick services
-uv run main.py --tools gmail drive calendar
+# Optional explicit tier expansion
+uvx workspace-mcp --tool-tier extended
+uvx workspace-mcp --tool-tier complete
+
+# Or cherry-pick services explicitly
+uv run main.py --tools drive docs sheets slides forms --tool-tier core
 ```
 
 </td>
@@ -216,12 +226,17 @@ export OAUTHLIB_INSECURE_TRANSPORT=1
 export FASTMCP_SERVER_AUTH_GOOGLE_JWT_SIGNING_KEY="$(openssl rand -hex 32)"
 
 # 2. Launch — OAuth 2.1 requires HTTP transport
-uvx workspace-mcp --transport streamable-http --tool-tier core
+# Jager fork default if you pass no tool filters:
+#   services=drive,docs,sheets,slides,forms
+#   tier=core
+uvx workspace-mcp --transport streamable-http
+
+# Optional explicit tier expansion
 uvx workspace-mcp --transport streamable-http --tool-tier extended
 uvx workspace-mcp --transport streamable-http --tool-tier complete
 
-# Or cherry-pick services
-uv run main.py --transport streamable-http --tools gmail drive calendar
+# Or cherry-pick services explicitly
+uv run main.py --transport streamable-http --tools drive docs sheets slides forms --tool-tier core
 ```
 
 </td>
@@ -257,8 +272,8 @@ uv run main.py --transport streamable-http --tools gmail drive calendar
 | `WORKSPACE_MCP_URL` | | Remote MCP endpoint URL for CLI |
 | `ALLOWED_FILE_DIRS` | | Colon-separated allowlist for local file reads |
 | **🧰 Tool Selection** | | |
-| `WORKSPACE_MCP_TOOLS` | | Comma-separated services, e.g. `gmail,drive,calendar`; empty means all services |
-| `WORKSPACE_MCP_TOOL_TIER` | | `core`, `extended`, or `complete`; empty means all tools |
+| `WORKSPACE_MCP_TOOLS` | | Comma-separated services, e.g. `drive,docs,sheets,slides,forms`; empty means this Jager fork defaults to `drive,docs,sheets,slides,forms` |
+| `WORKSPACE_MCP_TOOL_TIER` | | `core`, `extended`, or `complete`; empty means this Jager fork defaults to `core` |
 | `WORKSPACE_MCP_READ_ONLY` | | `true`, `1`, or `yes` to request read-only scopes and filter write tools |
 | `WORKSPACE_MCP_PERMISSIONS` | | Space-separated `service:level` entries, e.g. `gmail:send drive:readonly`; mutually exclusive with tools and read-only |
 | **🔑 OAuth 2.1 & Multi-User** | | |

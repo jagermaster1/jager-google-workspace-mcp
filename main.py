@@ -191,6 +191,8 @@ SERVICE_MODULES = {
     "appscript": "gappsscript.apps_script_tools",
 }
 VALID_SERVICES = frozenset(SERVICE_MODULES)
+DEFAULT_JAGER_SERVICES = ["drive", "docs", "sheets", "slides", "forms"]
+DEFAULT_JAGER_TOOL_TIER = "core"
 
 
 def safe_print(text):
@@ -309,7 +311,7 @@ def main():
         "--tools",
         nargs="*",
         choices=sorted(VALID_SERVICES),
-        help="Specify which tools to register. If not provided, all tools are registered.",
+        help="Specify which tools to register. If not provided, this fork defaults to the homeschool-friendly profile: drive, docs, sheets, slides, forms.",
     )
     parser.add_argument(
         "--tool-tier",
@@ -421,6 +423,24 @@ def main():
             args.transport = _env_transport
         else:
             args.transport = "stdio"
+
+    # Jager fork defaults: keep the full engine available, but bias the out-of-box
+    # profile toward homeschool workflows unless the operator explicitly overrides it.
+    if args.permissions is None and args.tools is None:
+        args.tools = list(DEFAULT_JAGER_SERVICES)
+        if args.tool_tier is None:
+            args.tool_tier = DEFAULT_JAGER_TOOL_TIER
+            logger.info(
+                "Using Jager default Google Workspace profile: services=%s tier=%s",
+                ",".join(DEFAULT_JAGER_SERVICES),
+                DEFAULT_JAGER_TOOL_TIER,
+            )
+        else:
+            logger.info(
+                "Using Jager default Google Workspace services with explicit tier override: services=%s tier=%s",
+                ",".join(DEFAULT_JAGER_SERVICES),
+                args.tool_tier,
+            )
 
     _env_http_port = os.getenv("WORKSPACE_MCP_HTTP_PORT", "").strip()
     http_port = None
